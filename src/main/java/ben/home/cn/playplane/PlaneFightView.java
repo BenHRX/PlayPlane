@@ -39,7 +39,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
 
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-
+        return;
     }
 
     @Override
@@ -73,6 +73,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
             {
                 Canvas canvas = surfaceHolder.lockCanvas();
                 synchronized (canvas){
+                    _background.refresh();
                     onDraw(canvas);
                 }
                 surfaceHolder.unlockCanvasAndPost(canvas);
