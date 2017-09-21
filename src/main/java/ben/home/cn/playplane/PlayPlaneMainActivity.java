@@ -15,6 +15,7 @@ public class PlayPlaneMainActivity extends AppCompatActivity {
         getSupportActionBar().hide();       /* AppCompatActivity use this to become full screen */
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);    // Full screen, no status bar
-        setContentView(R.layout.activity_play_plane_main);
+//        setContentView(R.layout.activity_play_plane_main);
+        setContentView(new PlaneFightView(this));
     }
 }
