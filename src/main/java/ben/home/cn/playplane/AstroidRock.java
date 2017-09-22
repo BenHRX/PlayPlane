@@ -1,6 +1,7 @@
 package ben.home.cn.playplane;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.util.Log;
 
@@ -17,8 +18,13 @@ public class AstroidRock extends Spirit {
     private static final int MAXROTATEINFRAME = 5;
     private Bitmap originBitmap;
     private Bitmap changedBitmap;
+    private Bitmap realBitmap;
     private int rotateInFrame;
     private float totalAngle;
+    private float originBitmapWidth;
+    private float originBitmapHeight;
+    private double realBitmapLength;             // Must be rectangle
+
 
     String TAG = "Astroid use >";
 
@@ -32,6 +38,10 @@ public class AstroidRock extends Spirit {
         getCoordinates().set_y(0);
         getCoordinates().set_x(100);
         totalAngle = 0.0f;
+        originBitmapWidth = originBitmap.getWidth();
+        originBitmapHeight = originBitmap.getHeight();
+        realBitmapLength = Math.sqrt(originBitmapWidth*originBitmapWidth +
+                originBitmapHeight*originBitmapHeight);
     }
 
     /*public int getRotateInFrame() {
@@ -62,6 +72,11 @@ public class AstroidRock extends Spirit {
         // originBitmap = changedBitmap;
         // changedBitmap = null;
         //changedBitmap.recycle();
+        realBitmap = Bitmap.createBitmap((int)Math.ceil(realBitmapLength), (int)Math.ceil(realBitmapLength),
+                originBitmap.getConfig());
+        Canvas canvas = new Canvas(realBitmap);
+        canvas.drawBitmap(changedBitmap, (float)(realBitmapLength - changedBitmap.getWidth())/2,
+                (float)(realBitmapLength - changedBitmap.getHeight())/2, null);
 
         Log.v(TAG, "The astroid is at (" + getCoordinates().get_x() + ", " + getCoordinates().get_y() + ")");
         Log.v(TAG, "The astroid pic size is (" + changedBitmap.getWidth() + ", " + changedBitmap.getHeight() + ")");
@@ -74,6 +89,7 @@ public class AstroidRock extends Spirit {
 
     @Override
     public Bitmap getImage() {
-        return this.changedBitmap;
+        //return this.changedBitmap;
+        return realBitmap;
     }
 }
