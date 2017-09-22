@@ -3,6 +3,7 @@ package ben.home.cn.playplane;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.util.Log;
 
 import java.util.Random;
@@ -25,6 +26,8 @@ public class AstroidRock extends Spirit {
     private float originBitmapHeight;
     private double realBitmapLength;             // Must be rectangle
 
+    private RectF collisonRectangle;
+
 
     String TAG = "Astroid use >";
 
@@ -42,6 +45,10 @@ public class AstroidRock extends Spirit {
         originBitmapHeight = originBitmap.getHeight();
         realBitmapLength = Math.sqrt(originBitmapWidth*originBitmapWidth +
                 originBitmapHeight*originBitmapHeight);
+        collisonRectangle = new RectF((float)(realBitmapLength - originBitmapWidth)/2,
+                (float)(realBitmapLength - originBitmapHeight)/2,
+                (float)(realBitmapLength + originBitmapWidth)/2,
+                (float)(realBitmapLength + originBitmapHeight)/2);
     }
 
     /*public int getRotateInFrame() {
@@ -91,5 +98,30 @@ public class AstroidRock extends Spirit {
     public Bitmap getImage() {
         //return this.changedBitmap;
         return realBitmap;
+    }
+
+    public boolean checkCollison(RectF rect){
+        return this.collisonRectangle.contains(rect);
+    }
+
+    public RectF getCollisonRectangle(){
+        collisonRectangle.offsetTo(0.0f, 0.0f);
+        collisonRectangle.offset(this.getCoordinates().get_x() + (float)(realBitmapLength - originBitmapWidth)/2,
+                this.getCoordinates().get_y() + (float)(realBitmapLength - originBitmapHeight)/2);
+        return collisonRectangle;
+    }
+
+    @Override
+    public String toString() {
+        return "AstroidRock{" +
+                "originBitmap=" + originBitmap +
+                ", changedBitmap=" + changedBitmap +
+                ", realBitmap=" + realBitmap +
+                ", rotateInFrame=" + rotateInFrame +
+                ", totalAngle=" + totalAngle +
+                ", originBitmapWidth=" + originBitmapWidth +
+                ", originBitmapHeight=" + originBitmapHeight +
+                ", realBitmapLength=" + realBitmapLength +
+                '}';
     }
 }

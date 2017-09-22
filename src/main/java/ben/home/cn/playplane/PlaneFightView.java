@@ -3,6 +3,8 @@ package ben.home.cn.playplane;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -66,6 +68,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
 
     @Override
     protected void onDraw(Canvas canvas) {
+        Paint paint = new Paint();
         super.onDraw(canvas);
         canvas.drawBitmap(_background.getImage(), _background.getCoordinates().get_x(),
                 _background.getCoordinates().get_y(), null);
@@ -73,6 +76,9 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
             case START:
                 canvas.drawBitmap(astroidRock.getImage(), astroidRock.getCoordinates().get_x(),
                         astroidRock.getCoordinates().get_y(), null);
+                paint.setColor(Color.RED);
+                paint.setStyle(Paint.Style.STROKE);
+                canvas.drawRect(astroidRock.getCollisonRectangle(), paint);
                 break;
             case END:
                 break;
