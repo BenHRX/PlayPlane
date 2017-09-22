@@ -14,7 +14,6 @@ public class BackGround extends Spirit {
     private int bgHeight;
 
     public BackGround(Bitmap background){
-        // super(background);
         super();
         if (background != null) {
             bgWidth = background.getWidth();

@@ -15,7 +15,9 @@ import ben.home.cn.share.BackGround;
 public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callback{
 
     private final SurfaceHolder _holder;
-    BackGround _background;
+    private BackGround _background;
+    private SceneControl director = SceneControl.START;
+    AstroidRock astroidRock;
 
     GameMainThread gameThread;
 
@@ -24,13 +26,27 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         // get the Surface Holder
         _holder = getHolder();
         _holder.addCallback(this);      // 注册回调函数
+        director = SceneControl.START;
         gameInit();
     }
 
     private void gameInit() {
         _background = new BackGround(BitmapFactory.decodeResource(getResources(), R.drawable.bluespace));
+        astroidRock = new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1));
     }
 
+    private void gameProcessing(){
+        _background.refresh();              // Always keep running
+        switch(director){
+            case START:
+                astroidRock.refreshStatus();
+                break;
+            case END:
+                break;
+            default:
+                break;
+        }
+    }
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         gameThread = new GameMainThread();
@@ -53,6 +69,16 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         super.onDraw(canvas);
         canvas.drawBitmap(_background.getImage(), _background.getCoordinates().get_x(),
                 _background.getCoordinates().get_y(), null);
+        switch(director){
+            case START:
+                canvas.drawBitmap(astroidRock.getImage(), astroidRock.getCoordinates().get_x(),
+                        astroidRock.getCoordinates().get_y(), null);
+                break;
+            case END:
+                break;
+            default:
+                break;
+        }
     }
 
     public class GameMainThread extends Thread{
@@ -73,12 +99,13 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
             {
                 Canvas canvas = surfaceHolder.lockCanvas();
                 synchronized (canvas){
-                    _background.refresh();
+                    gameProcessing();
                     onDraw(canvas);
                 }
                 surfaceHolder.unlockCanvasAndPost(canvas);
 
                 try {
+                    //Thread.sleep(1000/60);
                     Thread.sleep(1000/60);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

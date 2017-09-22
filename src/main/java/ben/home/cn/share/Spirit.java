@@ -23,7 +23,7 @@ public class Spirit {
         _alive = true;
     }
 
-    Spirit() {
+    public Spirit() {
         this._bitmap = null;
         _coordinates = new Coordinates();
         _speed = new Speed();
