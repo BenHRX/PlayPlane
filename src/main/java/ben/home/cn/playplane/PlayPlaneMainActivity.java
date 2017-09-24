@@ -4,6 +4,7 @@ package ben.home.cn.playplane;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
 public class PlayPlaneMainActivity extends AppCompatActivity {
@@ -16,6 +17,11 @@ public class PlayPlaneMainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);    // Full screen, no status bar
 //        setContentView(R.layout.activity_play_plane_main);
-        setContentView(new PlaneFightView(this));
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        this.getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
+        PlaneFightView planeFightView = new PlaneFightView(this);
+        planeFightView.SCREEN_WIDTH = outMetrics.widthPixels;
+        planeFightView.SCREEN_HEIGHT = outMetrics.heightPixels;
+        setContentView(planeFightView);
     }
 }

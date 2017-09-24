@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.RectF;
-import android.util.Log;
 
 import java.util.Random;
 
@@ -17,6 +16,10 @@ import ben.home.cn.share.Spirit;
 public class AstroidRock extends Spirit {
 
     private static final int MAXROTATEINFRAME = 5;
+    private static final int MAXBIGROCKSPEED = 7;
+    private int rangeOfRockMin;
+    private int rangeOfRockMax;
+
     private Bitmap originBitmap;
     private Bitmap changedBitmap;
     private Bitmap realBitmap;
@@ -25,30 +28,44 @@ public class AstroidRock extends Spirit {
     private float originBitmapWidth;
     private float originBitmapHeight;
     private double realBitmapLength;             // Must be rectangle
+    private float deltaX;
+    private float deltaY;
 
     private RectF collisonRectangle;
 
 
-    String TAG = "Astroid use >";
+    /*String TAG = "Astroid use >";*/
 
     AstroidRock(Bitmap astroidBitmap){
         super();
         originBitmap = astroidBitmap;
         Random rand = new Random(System.currentTimeMillis());
-        rotateInFrame = Math.abs(rand.nextInt() % MAXROTATEINFRAME);          // Use random degree for init
-        getSpeed().set_vely(1);
+        rotateInFrame = rand.nextInt() % MAXROTATEINFRAME;          // Use random degree for init, '+/-' also ok
+        getSpeed().set_vely(Math.abs(rand.nextInt() % MAXBIGROCKSPEED));
+        while(getSpeed().get_vely() <= 3){
+            getSpeed().set_vely(Math.abs(rand.nextInt() % MAXBIGROCKSPEED));  // Next speed;
+        }
         getSpeed().set_velyDirection(1);
-        getCoordinates().set_y(0);
-        getCoordinates().set_x(100);
+        /*getCoordinates().set_y(0);
+        getCoordinates().set_x(100);*/      // Random set the rock position
         totalAngle = 0.0f;
         originBitmapWidth = originBitmap.getWidth();
         originBitmapHeight = originBitmap.getHeight();
         realBitmapLength = Math.sqrt(originBitmapWidth*originBitmapWidth +
                 originBitmapHeight*originBitmapHeight);
+        deltaX = (float) (realBitmapLength - originBitmapWidth);
+        deltaY = (float) (realBitmapLength - originBitmapHeight);
+        // Todo
+        /*rangeOfRockMax = screenSize - deltaX;   --- Further need to get the screen size for initilize.*/
+        rangeOfRockMax = Math.round(PlaneFightView.SCREEN_WIDTH - deltaX);
+        rangeOfRockMin = 0;
         collisonRectangle = new RectF((float)(realBitmapLength - originBitmapWidth)/2,
                 (float)(realBitmapLength - originBitmapHeight)/2,
                 (float)(realBitmapLength + originBitmapWidth)/2,
                 (float)(realBitmapLength + originBitmapHeight)/2);
+        getCoordinates().set_y(0 - Math.round((float) realBitmapLength));
+        getCoordinates().set_x(Math.abs(rand.nextInt() % rangeOfRockMax));
+        this.set_alive(true);
     }
 
     /*public int getRotateInFrame() {
@@ -63,35 +80,37 @@ public class AstroidRock extends Spirit {
 
         super.statusUpdate();
 
-        // changedBitmap.recycle();
+        if(getCoordinates().get_x() < (0 - realBitmapLength / 2) ||
+                getCoordinates().get_x() > PlaneFightView.SCREEN_WIDTH + realBitmapLength /2){
+            this.set_alive(false);
+            return;
+        }
+        if(getCoordinates().get_y() > PlaneFightView.SCREEN_HEIGHT + realBitmapLength){
+            this.set_alive(false);
+            return;
+        }
 
         int AsdWidth = originBitmap.getWidth();
         int AsdHeight = originBitmap.getHeight();
         totalAngle = totalAngle + rotateInFrame;
-        if(totalAngle >=360){
+        if(totalAngle >= 360){
             totalAngle = totalAngle - 360;
+        }
+        if(totalAngle <= -360){
+            totalAngle = totalAngle + 360;
         }
         Matrix matrix = new Matrix();
         matrix.setRotate(totalAngle, originBitmap.getWidth()/2, originBitmap.getHeight()/2);
         matrix.postRotate(totalAngle);
-        // matrix.postRotate(rotateInFrame);
         changedBitmap = Bitmap.createBitmap(originBitmap, 0, 0, AsdWidth, AsdHeight, matrix, true);
-        // originBitmap = changedBitmap;
-        // changedBitmap = null;
-        //changedBitmap.recycle();
         realBitmap = Bitmap.createBitmap((int)Math.ceil(realBitmapLength), (int)Math.ceil(realBitmapLength),
                 originBitmap.getConfig());
         Canvas canvas = new Canvas(realBitmap);
         canvas.drawBitmap(changedBitmap, (float)(realBitmapLength - changedBitmap.getWidth())/2,
                 (float)(realBitmapLength - changedBitmap.getHeight())/2, null);
 
-        Log.v(TAG, "The astroid is at (" + getCoordinates().get_x() + ", " + getCoordinates().get_y() + ")");
-        Log.v(TAG, "The astroid pic size is (" + changedBitmap.getWidth() + ", " + changedBitmap.getHeight() + ")");
-        /*this.getCoordinates().set_y(this.getCoordinates().get_y() +
-                this.getSpeed().get_vely()*this.getSpeed().get_velyDirection());
-        this.getCoordinates().set_x(this.getCoordinates().get_x() +
-                this.getSpeed().get_velx() * this.getSpeed().get_velxDirection());*/
-
+        /*Log.v(TAG, "The astroid is at (" + getCoordinates().get_x() + ", " + getCoordinates().get_y() + ")");
+        Log.v(TAG, "The astroid pic size is (" + changedBitmap.getWidth() + ", " + changedBitmap.getHeight() + ")");*/
     }
 
     @Override
@@ -101,13 +120,13 @@ public class AstroidRock extends Spirit {
     }
 
     public boolean checkCollison(RectF rect){
-        return this.collisonRectangle.contains(rect);
+        return this.collisonRectangle.intersect(rect);
     }
 
     public RectF getCollisonRectangle(){
         collisonRectangle.offsetTo(0.0f, 0.0f);
-        collisonRectangle.offset(this.getCoordinates().get_x() + (float)(realBitmapLength - originBitmapWidth)/2,
-                this.getCoordinates().get_y() + (float)(realBitmapLength - originBitmapHeight)/2);
+        collisonRectangle.offset(this.getCoordinates().get_x() + deltaX / 2,
+                this.getCoordinates().get_y() + deltaY / 2);
         return collisonRectangle;
     }
 

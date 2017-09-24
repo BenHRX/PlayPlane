@@ -40,4 +40,13 @@ public class BackGround extends Spirit {
     public Bitmap getImage() {
         return this.bigBitmap;
     }
+
+    @Override
+    public String toString() {
+        return "BackGround{" +
+                "bigBitmap=" + bigBitmap +
+                ", bgWidth=" + bgWidth +
+                ", bgHeight=" + bgHeight +
+                '}';
+    }
 }

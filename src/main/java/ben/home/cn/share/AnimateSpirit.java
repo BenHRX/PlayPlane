@@ -103,4 +103,17 @@ public class AnimateSpirit extends Spirit {
             this.getSpeed().toggleXDirection();
         }
     }
+
+    @Override
+    public String toString() {
+        return "AnimateSpirit{" +
+                "_animateBitmap=" + _animateBitmap +
+                ", columnCount=" + columnCount +
+                ", rowCount=" + rowCount +
+                ", _animateList=" + _animateList +
+                ", runningCount=" + runningCount +
+                ", pointer=" + pointer +
+                ", frameTime=" + frameTime +
+                '}';
+    }
 }

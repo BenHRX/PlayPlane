@@ -180,4 +180,15 @@ public class Spirit {
     public void set_bitmapSequence(int _bitmapSequence) {
         this._bitmapSequence = _bitmapSequence;
     }
+
+    @Override
+    public String toString() {
+        return "Spirit{" +
+                "_bitmap=" + _bitmap +
+                ", _coordinates=" + _coordinates +
+                ", _speed=" + _speed +
+                ", _alive=" + _alive +
+                ", _bitmapSequence=" + _bitmapSequence +
+                '}';
+    }
 }

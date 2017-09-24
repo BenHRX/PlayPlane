@@ -8,6 +8,8 @@ import android.graphics.Paint;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+
 import ben.home.cn.share.BackGround;
 
 /**
@@ -16,10 +18,13 @@ import ben.home.cn.share.BackGround;
 
 public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callback{
 
+    public static int SCREEN_WIDTH;
+    public static int SCREEN_HEIGHT;
     private final SurfaceHolder _holder;
     private BackGround _background;
     private SceneControl director = SceneControl.START;
-    AstroidRock astroidRock;
+    // AstroidRock astroidRock;
+    ArrayList<AstroidRock> astroidRocks = new ArrayList<>();
 
     GameMainThread gameThread;
 
@@ -34,14 +39,21 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
 
     private void gameInit() {
         _background = new BackGround(BitmapFactory.decodeResource(getResources(), R.drawable.bluespace));
-        astroidRock = new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1));
+        /*astroidRock = new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1));*/
+        astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 01
+        astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 02
+        astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 03
     }
 
     private void gameProcessing(){
         _background.refresh();              // Always keep running
         switch(director){
             case START:
-                astroidRock.refreshStatus();
+                for(AstroidRock astroidRock : astroidRocks) {
+                    if(astroidRock.is_alive()){
+                        astroidRock.refreshStatus();
+                    }
+                }
                 break;
             case END:
                 break;
@@ -49,6 +61,22 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                 break;
         }
     }
+
+
+    private void cleanNotAlive() {
+        for (int i = astroidRocks.size()-1; i >= 0; i--) {
+            if(!astroidRocks.get(i).is_alive()){
+                astroidRocks.remove(i);
+            }
+        }
+    }
+
+    private void rebornNewLive(){
+        while(astroidRocks.size() < 3){
+            astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));
+        }
+    }
+
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         gameThread = new GameMainThread();
@@ -74,11 +102,15 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                 _background.getCoordinates().get_y(), null);
         switch(director){
             case START:
-                canvas.drawBitmap(astroidRock.getImage(), astroidRock.getCoordinates().get_x(),
-                        astroidRock.getCoordinates().get_y(), null);
-                paint.setColor(Color.RED);
-                paint.setStyle(Paint.Style.STROKE);
-                canvas.drawRect(astroidRock.getCollisonRectangle(), paint);
+                for(AstroidRock astroidRock : astroidRocks){
+                    if(astroidRock.is_alive()){
+                        canvas.drawBitmap(astroidRock.getImage(), astroidRock.getCoordinates().get_x(),
+                                astroidRock.getCoordinates().get_y(), null);
+                        paint.setColor(Color.RED);
+                        paint.setStyle(Paint.Style.STROKE);
+                        canvas.drawRect(astroidRock.getCollisonRectangle(), paint);
+                    }
+                }
                 break;
             case END:
                 break;
@@ -105,6 +137,8 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
             {
                 Canvas canvas = surfaceHolder.lockCanvas();
                 synchronized (canvas){
+                    cleanNotAlive();                    // Must be in this sequence...
+                    rebornNewLive();
                     gameProcessing();
                     onDraw(canvas);
                 }
@@ -128,4 +162,5 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
             }
         }
     }
+
 }
