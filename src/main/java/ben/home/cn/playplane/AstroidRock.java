@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.util.Log;
 
 import java.util.Random;
 
@@ -33,6 +34,7 @@ public class AstroidRock extends Spirit {
 
     private RectF collisonRectangle;
 
+    private static String TAG = "Astroid inside >>";
 
     /*String TAG = "Astroid use >";*/
 
@@ -100,7 +102,7 @@ public class AstroidRock extends Spirit {
             totalAngle = totalAngle + 360;
         }
         Matrix matrix = new Matrix();
-        matrix.setRotate(totalAngle, originBitmap.getWidth()/2, originBitmap.getHeight()/2);
+        matrix.setRotate(totalAngle, originBitmap.getWidth()/2, originBitmap.getHeight()/2);            // Set rotation center point
         matrix.postRotate(totalAngle);
         changedBitmap = Bitmap.createBitmap(originBitmap, 0, 0, AsdWidth, AsdHeight, matrix, true);
         realBitmap = Bitmap.createBitmap((int)Math.ceil(realBitmapLength), (int)Math.ceil(realBitmapLength),
@@ -120,7 +122,12 @@ public class AstroidRock extends Spirit {
     }
 
     public boolean checkCollison(RectF rect){
+        Log.v(TAG, "The checkcollison (left,top) = (" + getCollisonRectangle().left + "," + getCollisonRectangle().top +
+                ") and (right,bottom) = (" + getCollisonRectangle().right + "," + getCollisonRectangle().bottom + ")");
+        Log.v(TAG, "The outter (left,top) = (" + rect.left + "," + rect.top +
+                ") and (right,bottom) = (" + rect.right + "," + rect.bottom + ")");
         return this.collisonRectangle.intersect(rect);
+//        return false;
     }
 
     public RectF getCollisonRectangle(){

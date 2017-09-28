@@ -9,6 +9,7 @@ import android.view.WindowManager;
 
 public class PlayPlaneMainActivity extends AppCompatActivity {
 //public class PlayPlaneMainActivity extends Activity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,9 +20,11 @@ public class PlayPlaneMainActivity extends AppCompatActivity {
 //        setContentView(R.layout.activity_play_plane_main);
         DisplayMetrics outMetrics = new DisplayMetrics();
         this.getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
+        PlaneFightView.SCREEN_WIDTH = outMetrics.widthPixels;
+        PlaneFightView.SCREEN_HEIGHT = outMetrics.heightPixels;
         PlaneFightView planeFightView = new PlaneFightView(this);
-        planeFightView.SCREEN_WIDTH = outMetrics.widthPixels;
-        planeFightView.SCREEN_HEIGHT = outMetrics.heightPixels;
+        //planeFightView.SCREEN_WIDTH = outMetrics.widthPixels;
+        //planeFightView.SCREEN_HEIGHT = outMetrics.heightPixels;
         setContentView(planeFightView);
     }
 }
