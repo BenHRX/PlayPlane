@@ -1,6 +1,7 @@
 package ben.home.cn.playplane;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -25,6 +26,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
     private SceneControl director = SceneControl.START;
     // AstroidRock astroidRock;
     ArrayList<AstroidRock> astroidRocks = new ArrayList<>();
+    SpaceShip spaceShip;
 
     GameMainThread gameThread;
 
@@ -43,8 +45,14 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         /*astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 01
         astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 02
         astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 03*/
+        ArrayList<Bitmap> spaceShipBitmaps = new ArrayList<>();
+        spaceShipBitmaps.add(0, BitmapFactory.decodeResource(getResources(),R.drawable.spaceship));
+        spaceShipBitmaps.add(1, BitmapFactory.decodeResource(getResources(), R.drawable.ship_thrust));
+        spaceShip = new SpaceShip(spaceShipBitmaps, 60);
         rebornNewRock();
+        rebornSpaceShip();
     }
+
 
     private void gameProcessing(){
         _background.refresh();              // Always keep running
@@ -55,6 +63,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                         astroidRock.refreshStatus();
                     }
                 }
+                spaceShip.statusUpdate();
                 break;
             case END:
                 break;
@@ -95,6 +104,10 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         }
     }
 
+    private void rebornSpaceShip() {
+        return;
+    }
+
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         gameThread = new GameMainThread();
@@ -129,6 +142,9 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                         canvas.drawRect(astroidRock.getCollisonRectangle(), paint);
                     }
                 }
+                canvas.drawBitmap(spaceShip.getImage(), spaceShip.getCoordinates().get_x(),
+                        spaceShip.getCoordinates().get_y(), null);
+                canvas.drawRect(spaceShip.getCollisonRectangle(), paint);
                 break;
             case END:
                 break;
