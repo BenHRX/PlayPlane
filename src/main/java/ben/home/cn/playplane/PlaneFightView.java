@@ -6,10 +6,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import ben.home.cn.share.BackGround;
 
@@ -21,14 +24,19 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
 
     public static int SCREEN_WIDTH;
     public static int SCREEN_HEIGHT;
+    private int timeTick = 0;
     private final SurfaceHolder _holder;
     private BackGround _background;
     private SceneControl director = SceneControl.START;
     // AstroidRock astroidRock;
     ArrayList<AstroidRock> astroidRocks = new ArrayList<>();
     SpaceShip spaceShip;
+    LinkedList<Bullet> bullets = new LinkedList<>();
+    private Bitmap bulletBitmap;
 
     GameMainThread gameThread;
+
+    String TAG = "Main View (Test) >";
 
     public PlaneFightView(Context context) {
         super(context);
@@ -49,10 +57,12 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         spaceShipBitmaps.add(0, BitmapFactory.decodeResource(getResources(),R.drawable.spaceship));
         spaceShipBitmaps.add(1, BitmapFactory.decodeResource(getResources(), R.drawable.ship_thrust));
         spaceShip = new SpaceShip(spaceShipBitmaps, 60);
+        timeTick = 0;
+        bulletBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.plasmashot);
+        bulletUpdate();
         rebornNewRock();
         rebornSpaceShip();
     }
-
 
     private void gameProcessing(){
         _background.refresh();              // Always keep running
@@ -64,6 +74,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                     }
                 }
                 spaceShip.statusUpdate();
+                bulletUpdate();
                 break;
             case END:
                 break;
@@ -108,6 +119,33 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         return;
     }
 
+    private void bulletUpdate() {
+        timeTick++;
+        if(timeTick > 10){
+            Bullet bullet = new Bullet(bulletBitmap, spaceShip.getCoordinates().get_centerX(),
+                    spaceShip.getCoordinates().get_y());
+            bullets.add(bullet);
+            timeTick = 0;
+        }
+        for(Bullet tmpBullet : bullets){
+            tmpBullet.statusUpdate();
+        }
+        // Clear not alive bullet
+        /*for (int i = bullets.size()-1; i >= 0; i--) {
+            if(!bullets.get(i).is_alive()){
+                bullets.remove(i);
+            }
+        }*/
+        Iterator<Bullet> bulletIter = bullets.listIterator();
+        while(bulletIter.hasNext()){
+            Bullet tmpBulletStatus = bulletIter.next();
+            if(!tmpBulletStatus.is_alive()){
+                bulletIter.remove();
+            }
+        }
+//        Log.v(TAG, "The bullets size is " + bullets.size());
+    }
+
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         gameThread = new GameMainThread();
@@ -140,6 +178,13 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                         paint.setColor(Color.RED);
                         paint.setStyle(Paint.Style.STROKE);
                         canvas.drawRect(astroidRock.getCollisonRectangle(), paint);
+                    }
+                }
+                for(Bullet tmpBullet : bullets){
+                    if(tmpBullet.is_alive()){
+                        canvas.drawBitmap(tmpBullet.getImage(), tmpBullet.getCoordinates().get_x(),
+                                tmpBullet.getCoordinates().get_y(), null);
+                        canvas.drawRect(tmpBullet.getCollisonRectangle(), paint);
                     }
                 }
                 canvas.drawBitmap(spaceShip.getImage(), spaceShip.getCoordinates().get_x(),

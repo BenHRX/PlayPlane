@@ -129,6 +129,8 @@ public class Spirit {
     public class Coordinates{
         private int _x = 0;
         private int _y = 0;
+        private int _centerX = 0;
+        private int _centerY = 0;
 
         public int get_x() {
             return _x;
@@ -146,11 +148,33 @@ public class Spirit {
             this._y = _y;
         }
 
+        public int get_centerX() {
+            if(getImage()!= null){
+                _centerX = _x + getImage().getWidth()/2;
+            }
+            else{
+                _centerX = 0;
+            }
+            return _centerX;
+        }
+
+        public int get_centerY() {
+            if(getImage()!= null){
+                _centerY = _y + getImage().getHeight()/2;
+            }
+            else{
+                _centerY = 0;
+            }
+            return _centerY;
+        }
+
         @Override
         public String toString() {
             return "Coordinates{" +
                     "_x=" + _x +
                     ", _y=" + _y +
+                    ", _centerX=" + _centerX +
+                    ", _centerY=" + _centerY +
                     '}';
         }
     }
