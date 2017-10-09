@@ -31,6 +31,7 @@ public class SpaceShip extends AnimateSpirit {
         collisonRectangle = new RectF(0, 0, bitmapSizeW, bitmapSizeH);
         this.getCoordinates().set_x(Math.round(PlaneFightView.SCREEN_WIDTH / 2 - bitmapSizeW / 2));
         this.getCoordinates().set_y(Math.round(PlaneFightView.SCREEN_HEIGHT - bitmapSizeH));
+        this.set_alive(true);
     }
 
     public boolean checkCollison(RectF rect) {

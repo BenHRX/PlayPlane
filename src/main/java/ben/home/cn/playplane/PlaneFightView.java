@@ -76,6 +76,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                 }
                 spaceShip.statusUpdate();
                 bulletUpdate();
+                collisonCheck();
                 break;
             case END:
                 break;
@@ -84,12 +85,41 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         }
     }
 
+    private void collisonCheck() {
+        // To check the Astroid vs Spaceship and the Bullet vs Astroid method
+        // 1. Spaceship vs Astroid
+        for (int i = astroidRocks.size()-1; i >= 0; i--) {
+            if(astroidRocks.get(i).is_alive() &&
+                    spaceShip.checkCollison(astroidRocks.get(i).getCollisonRectangle()))
+            {
+                spaceShip.set_alive(false);
+                return;
+            }
+            for (Bullet tmpBullet:bullets) {
+                if(tmpBullet.checkCollison(astroidRocks.get(i).getCollisonRectangle())){
+                    tmpBullet.set_alive(false);
+                    astroidRocks.get(i).set_alive(false);
+                }
+            }
+        }
+    }
 
-    private void cleanNotAlive() {
+
+    private void cleanNotAlive() {              // Whether really need to use this method to clear the objects??
         for (int i = astroidRocks.size()-1; i >= 0; i--) {
             if(!astroidRocks.get(i).is_alive()){
                 astroidRocks.remove(i);
             }
+        }
+        Iterator<Bullet> bulletIter = bullets.listIterator();
+        while(bulletIter.hasNext()){
+            Bullet tmpBulletStatus = bulletIter.next();
+            if(!tmpBulletStatus.is_alive()){
+                bulletIter.remove();
+            }
+        }
+        if(!spaceShip.is_alive()){
+
         }
     }
 
@@ -137,13 +167,6 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                 bullets.remove(i);
             }
         }*/
-        Iterator<Bullet> bulletIter = bullets.listIterator();
-        while(bulletIter.hasNext()){
-            Bullet tmpBulletStatus = bulletIter.next();
-            if(!tmpBulletStatus.is_alive()){
-                bulletIter.remove();
-            }
-        }
 //        Log.v(TAG, "The bullets size is " + bullets.size());
     }
 
@@ -203,9 +226,11 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                         canvas.drawRect(tmpBullet.getCollisonRectangle(), paint);
                     }
                 }
-                canvas.drawBitmap(spaceShip.getImage(), spaceShip.getCoordinates().get_x(),
-                        spaceShip.getCoordinates().get_y(), null);
-                canvas.drawRect(spaceShip.getCollisonRectangle(), paint);
+                if(spaceShip.is_alive()) {
+                    canvas.drawBitmap(spaceShip.getImage(), spaceShip.getCoordinates().get_x(),
+                            spaceShip.getCoordinates().get_y(), null);
+                    canvas.drawRect(spaceShip.getCollisonRectangle(), paint);
+                }
                 break;
             case END:
                 break;
