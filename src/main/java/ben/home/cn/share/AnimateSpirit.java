@@ -99,9 +99,9 @@ public class AnimateSpirit extends Spirit {
     @Override
     public void statusUpdate() {
         super.statusUpdate();
-        if(this.getCoordinates().get_x() >= 600 || this.getCoordinates().get_x() <= 20){
+        /*if(this.getCoordinates().get_x() >= 600 || this.getCoordinates().get_x() <= 20){
             this.getSpeed().toggleXDirection();
-        }
+        }*/
     }
 
     @Override

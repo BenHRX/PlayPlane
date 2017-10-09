@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -150,6 +151,21 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         gameThread = new GameMainThread();
         gameThread.start();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if(event.getAction() != MotionEvent.ACTION_DOWN && event.getAction() != MotionEvent.ACTION_MOVE){
+            return false;
+        }
+//        return super.onTouchEvent(event);
+        synchronized (_holder){
+            float targetX = event.getX();
+            float targetY = event.getY();
+//            Log.v(TAG, "The spaceship now go to (" + targetX + "," + targetY+")");
+            spaceShip.setTarget(targetX, targetY);
+            return true;
+        }
     }
 
     @Override

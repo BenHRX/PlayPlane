@@ -23,7 +23,7 @@ public class Bullet extends Spirit {
         bitmapSizeH = bulletBitmap.getHeight();
         this.getCoordinates().set_x(posX - (int)bitmapSizeW/2);
         this.getCoordinates().set_y(posY);
-        this.getSpeed().set_vely(6);
+        this.getSpeed().set_vely(30);
         this.getSpeed().set_velx(0);
         this.getSpeed().set_velyDirection(Speed.Y_DIRECTION_UP);
         this.getSpeed().set_velxDirection(Speed.X_DIRECTION_LEFT);
