@@ -6,12 +6,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -25,6 +28,9 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
 
     public static int SCREEN_WIDTH;
     public static int SCREEN_HEIGHT;
+    private static MediaPlayer music;    // For background music
+//    private static SoundPool.Builder soundEffect;   // See SoundPool comment
+    private static SoundPool soundEffectPool;
     private int timeTick = 0;
     private final SurfaceHolder _holder;
     private BackGround _background;
@@ -35,6 +41,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
     LinkedList<Bullet> bullets = new LinkedList<>();
     // Decide to make a Boom class to show the boom status for the corresponding object(eg: Astroid)
     LinkedList<Boom> boomList = new LinkedList<>();
+    HashMap<String, Integer> soundPool = new HashMap<>();
     private Bitmap bulletBitmap;
 
     GameMainThread gameThread;
@@ -43,7 +50,12 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
 
     public PlaneFightView(Context context) {
         super(context);
-        // get the Surface Holder
+        music = MediaPlayer.create(context, R.raw.song18);
+        music.setLooping(true);
+        soundEffectPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);  // Should use soundpool.builder to make the sound pool now, but I am now hope the older machine also can use.
+//        soundEffect = new SoundPool.Builder();
+        soundPool.put("explode",soundEffectPool.load(context, R.raw.explode, 1));   // soundpool load return int
+        /// / get the Surface Holder
         _holder = getHolder();
         _holder.addCallback(this);      // 注册回调函数
         director = SceneControl.START;
@@ -52,6 +64,9 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
 
     private void gameInit() {
         _background = new BackGround(BitmapFactory.decodeResource(getResources(), R.drawable.bluespace));
+        if(!music.isPlaying()) {
+            music.start();
+        }
         /*astroidRock = new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1));*/
         /*astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 01
         astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 02
@@ -59,7 +74,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         ArrayList<Bitmap> spaceShipBitmaps = new ArrayList<>();
         spaceShipBitmaps.add(0, BitmapFactory.decodeResource(getResources(),R.drawable.spaceship));
         spaceShipBitmaps.add(1, BitmapFactory.decodeResource(getResources(), R.drawable.ship_thrust));
-        spaceShip = new SpaceShip(spaceShipBitmaps, 60);
+        spaceShip = new SpaceShip(spaceShipBitmaps, 20);
         timeTick = 0;
         bulletBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.plasmashot);
         bulletUpdate();
@@ -97,7 +112,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
     private void collisonCheck() {
         // To check the Astroid vs Spaceship and the Bullet vs Astroid method
         // 1. Spaceship vs Astroid
-        // 2.
+        // 2. Bullet vs Astroid
         for (int i = astroidRocks.size()-1; i >= 0; i--) {
             if(astroidRocks.get(i).is_alive() && spaceShip.is_alive() &&
                     spaceShip.checkCollison(astroidRocks.get(i).getCollisonRectangle()))
@@ -106,6 +121,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                 boomList.add(new Boom(BitmapFactory.decodeResource(getResources(),
                         R.drawable.explosion2), 4, 2, spaceShip.getCoordinates().get_x(),
                         spaceShip.getCoordinates().get_y()));
+
                 return;
             }
             for (Bullet tmpBullet:bullets) {
@@ -115,6 +131,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                     boomList.add(new Boom(BitmapFactory.decodeResource(getResources(),
                             R.drawable.explosion), 4, 4, astroidRocks.get(i).getCoordinates().get_x(),
                             astroidRocks.get(i).getCoordinates().get_y()));
+                    soundEffectPool.play(soundPool.get("explode"), 1.0f, 1.0f, 0, 1, 1.0f);
                 }
             }
         }
@@ -303,6 +320,8 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
 
         public void requestWaitAndExit(){
             this._threadDone = true;
+            music.release();
+            soundEffectPool.release();
             try {
                 join();
             } catch (InterruptedException e) {
