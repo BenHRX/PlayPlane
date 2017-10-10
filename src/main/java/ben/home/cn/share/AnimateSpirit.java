@@ -73,10 +73,23 @@ public class AnimateSpirit extends Spirit {
 
     public void runBySequence(int ms){       // Every ms to switch
         runningCount++;
-        if(runningCount > (60 * ms / 1000)){
+        // if(runningCount > (60 * ms / 1000)){
+        if(runningCount > ms){
             pointer++;
             if(pointer >= _animateList.size()){
                 pointer = 0;
+            }
+            runningCount = 0;
+        }
+    }
+
+    public void runOnce(int ms){
+        runningCount++;
+        if(runningCount > ms){
+            pointer++;
+            if(pointer >= _animateList.size()){
+                this.set_alive(false);
+                return;
             }
             runningCount = 0;
         }

@@ -33,6 +33,8 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
     ArrayList<AstroidRock> astroidRocks = new ArrayList<>();
     SpaceShip spaceShip;
     LinkedList<Bullet> bullets = new LinkedList<>();
+    // Decide to make a Boom class to show the boom status for the corresponding object(eg: Astroid)
+    LinkedList<Boom> boomList = new LinkedList<>();
     private Bitmap bulletBitmap;
 
     GameMainThread gameThread;
@@ -77,6 +79,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                 spaceShip.statusUpdate();
                 bulletUpdate();
                 collisonCheck();
+                boomUpdate();
                 break;
             case END:
                 break;
@@ -85,20 +88,33 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         }
     }
 
+    private void boomUpdate() {
+        for (Boom tmpB : boomList) {
+            tmpB.boomStatusUpdate();
+        }
+    }
+
     private void collisonCheck() {
         // To check the Astroid vs Spaceship and the Bullet vs Astroid method
         // 1. Spaceship vs Astroid
+        // 2.
         for (int i = astroidRocks.size()-1; i >= 0; i--) {
-            if(astroidRocks.get(i).is_alive() &&
+            if(astroidRocks.get(i).is_alive() && spaceShip.is_alive() &&
                     spaceShip.checkCollison(astroidRocks.get(i).getCollisonRectangle()))
             {
                 spaceShip.set_alive(false);
+                boomList.add(new Boom(BitmapFactory.decodeResource(getResources(),
+                        R.drawable.explosion2), 4, 2, spaceShip.getCoordinates().get_x(),
+                        spaceShip.getCoordinates().get_y()));
                 return;
             }
             for (Bullet tmpBullet:bullets) {
                 if(tmpBullet.checkCollison(astroidRocks.get(i).getCollisonRectangle())){
                     tmpBullet.set_alive(false);
                     astroidRocks.get(i).set_alive(false);
+                    boomList.add(new Boom(BitmapFactory.decodeResource(getResources(),
+                            R.drawable.explosion), 4, 4, astroidRocks.get(i).getCoordinates().get_x(),
+                            astroidRocks.get(i).getCoordinates().get_y()));
                 }
             }
         }
@@ -116,6 +132,13 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
             Bullet tmpBulletStatus = bulletIter.next();
             if(!tmpBulletStatus.is_alive()){
                 bulletIter.remove();
+            }
+        }
+        Iterator<Boom> boomIter = boomList.listIterator();
+        while(boomIter.hasNext()){
+            Boom tmpBoom = boomIter.next();
+            if(!tmpBoom.is_alive()){
+                boomIter.remove();
             }
         }
         if(!spaceShip.is_alive()){
@@ -152,7 +175,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
 
     private void bulletUpdate() {
         timeTick++;
-        if(timeTick > 10){
+        if(timeTick > 10 && spaceShip.is_alive()){
             Bullet bullet = new Bullet(bulletBitmap, spaceShip.getCoordinates().get_centerX(),
                     spaceShip.getCoordinates().get_y());
             bullets.add(bullet);
@@ -224,6 +247,12 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                         canvas.drawBitmap(tmpBullet.getImage(), tmpBullet.getCoordinates().get_x(),
                                 tmpBullet.getCoordinates().get_y(), null);
                         canvas.drawRect(tmpBullet.getCollisonRectangle(), paint);
+                    }
+                }
+                for(Boom tmpBoom : boomList){
+                    if(tmpBoom.is_alive()){
+                        canvas.drawBitmap(tmpBoom.getImage(), tmpBoom.getCoordinates().get_x(),
+                                tmpBoom.getCoordinates().get_y(), null);
                     }
                 }
                 if(spaceShip.is_alive()) {
