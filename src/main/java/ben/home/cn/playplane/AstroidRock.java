@@ -8,13 +8,14 @@ import android.util.Log;
 
 import java.util.Random;
 
+import ben.home.cn.share.ElementStatus;
 import ben.home.cn.share.Spirit;
 
 /**
  * Created by benhuang on 17-9-22.
  */
 
-public class AstroidRock extends Spirit {
+public class AstroidRock extends Spirit implements ElementStatus{
 
     private static final int MAXROTATEINFRAME = 5;
     private static final int MAXBIGROCKSPEED = 7;
@@ -33,6 +34,9 @@ public class AstroidRock extends Spirit {
     private float deltaY;
 
     private RectF collisonRectangle;
+
+    private int HealPower;
+    private int AttackValue;
 
     private static String TAG = "Astroid inside >>";
 
@@ -68,6 +72,8 @@ public class AstroidRock extends Spirit {
         getCoordinates().set_y(0 - Math.round((float) realBitmapLength));
         getCoordinates().set_x(Math.abs(rand.nextInt() % rangeOfRockMax));
         this.set_alive(true);
+        this.setHealPower(5);
+        this.setAttackValue(1);
     }
 
     /*public int getRotateInFrame() {
@@ -149,5 +155,36 @@ public class AstroidRock extends Spirit {
                 ", originBitmapHeight=" + originBitmapHeight +
                 ", realBitmapLength=" + realBitmapLength +
                 '}';
+    }
+
+    @Override
+    public int getHealPower() {
+        return this.HealPower;
+    }
+
+    @Override
+    public void setHealPower(int heal) {
+        this.HealPower = heal;
+    }
+
+    @Override
+    public int getAttackValue() {
+        return this.AttackValue;
+    }
+
+    @Override
+    public void setAttackValue(int value) {
+        this.AttackValue = value;
+    }
+
+    @Override
+    public int checkDestroyStatus(int outterDamage) {
+        if(this.getHealPower() - outterDamage <= 0){
+            return TARGETDESTROYED;
+        }
+        else{
+            this.setHealPower(this.getHealPower() - outterDamage);
+            return TARGETALIVE;
+        }
     }
 }

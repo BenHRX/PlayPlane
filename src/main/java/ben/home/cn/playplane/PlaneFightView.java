@@ -93,7 +93,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                 }
                 spaceShip.statusUpdate();
                 bulletUpdate();
-                collisonCheck();
+                collisionCheck();
                 boomUpdate();
                 break;
             case END:
@@ -109,7 +109,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         }
     }
 
-    private void collisonCheck() {
+    private void collisionCheck() {
         // To check the Astroid vs Spaceship and the Bullet vs Astroid method
         // 1. Spaceship vs Astroid
         // 2. Bullet vs Astroid
@@ -117,21 +117,25 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
             if(astroidRocks.get(i).is_alive() && spaceShip.is_alive() &&
                     spaceShip.checkCollison(astroidRocks.get(i).getCollisonRectangle()))
             {
-                spaceShip.set_alive(false);
-                boomList.add(new Boom(BitmapFactory.decodeResource(getResources(),
-                        R.drawable.explosion2), 4, 2, spaceShip.getCoordinates().get_x(),
-                        spaceShip.getCoordinates().get_y()));
+                if(spaceShip.checkDestroyStatus(astroidRocks.get(i).getAttackValue()) == SpaceShip.TARGETDESTROYED) {
+                    spaceShip.set_alive(false);
+                    boomList.add(new Boom(BitmapFactory.decodeResource(getResources(),
+                            R.drawable.explosion2), 4, 2, spaceShip.getCoordinates().get_x(),
+                            spaceShip.getCoordinates().get_y()));
 
-                return;
+                    return;
+                }
             }
             for (Bullet tmpBullet:bullets) {
                 if(tmpBullet.checkCollison(astroidRocks.get(i).getCollisonRectangle())){
                     tmpBullet.set_alive(false);
-                    astroidRocks.get(i).set_alive(false);
-                    boomList.add(new Boom(BitmapFactory.decodeResource(getResources(),
-                            R.drawable.explosion), 4, 4, astroidRocks.get(i).getCoordinates().get_x(),
-                            astroidRocks.get(i).getCoordinates().get_y()));
-                    soundEffectPool.play(soundPool.get("explode"), 1.0f, 1.0f, 0, 1, 1.0f);
+                    if(astroidRocks.get(i).checkDestroyStatus(tmpBullet.getAttackValue()) == AstroidRock.TARGETDESTROYED){
+                        astroidRocks.get(i).set_alive(false);
+                        boomList.add(new Boom(BitmapFactory.decodeResource(getResources(),
+                                R.drawable.explosion), 4, 4, astroidRocks.get(i).getCoordinates().get_x(),
+                                astroidRocks.get(i).getCoordinates().get_y()));
+                        soundEffectPool.play(soundPool.get("explode"), 1.0f, 1.0f, 0, 1, 1.0f);
+                    }
                 }
             }
         }

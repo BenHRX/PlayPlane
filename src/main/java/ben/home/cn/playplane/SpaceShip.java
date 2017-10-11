@@ -7,13 +7,14 @@ import android.util.Log;
 import java.util.ArrayList;
 
 import ben.home.cn.share.AnimateSpirit;
+import ben.home.cn.share.ElementStatus;
 
 /**
  * Created by benhuang on 17-9-22.
  */
 
 
-public class SpaceShip extends AnimateSpirit {
+public class SpaceShip extends AnimateSpirit implements ElementStatus{
 
     private RectF collisonRectangle;
     private static String TAG = "SpaceShip in >>";
@@ -23,6 +24,8 @@ public class SpaceShip extends AnimateSpirit {
     private float _targetX;
     private float _targetY;
     private float _vel;
+    private int healPower;
+    private int attackValue;
 
     SpaceShip(ArrayList<Bitmap> tmpList, int frameTime) {
         super(tmpList, frameTime);               // Default set to 1s
@@ -32,6 +35,8 @@ public class SpaceShip extends AnimateSpirit {
         this.getCoordinates().set_x(Math.round(PlaneFightView.SCREEN_WIDTH / 2 - bitmapSizeW / 2));
         this.getCoordinates().set_y(Math.round(PlaneFightView.SCREEN_HEIGHT - bitmapSizeH));
         this.set_alive(true);
+        this.setHealPower(1);
+        this.setAttackValue(0);
     }
 
     public boolean checkCollison(RectF rect) {
@@ -84,5 +89,36 @@ public class SpaceShip extends AnimateSpirit {
                 : Speed.X_DIRECTION_LEFT);
         getSpeed().set_velyDirection(_targetY > getCoordinates().get_y() ? Speed.Y_DIRECTION_DOWN
                 : Speed.Y_DIRECTION_UP);
+    }
+
+    @Override
+    public int getHealPower() {
+        return healPower;
+    }
+
+    @Override
+    public void setHealPower(int heal) {
+        healPower = heal;
+    }
+
+    @Override
+    public int getAttackValue() {
+        return attackValue;
+    }
+
+    @Override
+    public void setAttackValue(int value) {
+        attackValue = value;
+    }
+
+    @Override
+    public int checkDestroyStatus(int outterDamage) {
+        if(this.getHealPower() - outterDamage <= 0){
+            return TARGETDESTROYED;
+        }
+        else{
+            this.setHealPower(this.getHealPower() - outterDamage);
+            return TARGETALIVE;
+        }
     }
 }
