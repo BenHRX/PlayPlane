@@ -49,6 +49,14 @@ public class Spirit {
                 getSpeed().get_vely()*getSpeed().get_velyDirection());
     }
 
+    // Recycled bitmap is to remove the resource level in the program.  means will affect all sample that using this bitmap source
+    public void recycleBitmap(){
+        if(!is_alive()) {
+            _bitmap = null;
+            System.gc();
+        }
+    }
+
     // 描述速度的类
     public class Speed{
         public static final int X_DIRECTION_RIGHT = 1;
@@ -197,13 +205,13 @@ public class Spirit {
         }
     }
 
-    public int get_bitmapSequence() {
+/*    public int get_bitmapSequence() {
         return _bitmapSequence;
     }
 
     public void set_bitmapSequence(int _bitmapSequence) {
         this._bitmapSequence = _bitmapSequence;
-    }
+    }*/
 
     @Override
     public String toString() {

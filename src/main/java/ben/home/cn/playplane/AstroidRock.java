@@ -72,7 +72,7 @@ public class AstroidRock extends Spirit implements ElementStatus{
         getCoordinates().set_y(0 - Math.round((float) realBitmapLength));
         getCoordinates().set_x(Math.abs(rand.nextInt() % rangeOfRockMax));
         this.set_alive(true);
-        this.setHealPower(5);
+        this.setHealPower(1);
         this.setAttackValue(1);
     }
 
@@ -116,7 +116,6 @@ public class AstroidRock extends Spirit implements ElementStatus{
         Canvas canvas = new Canvas(realBitmap);
         canvas.drawBitmap(changedBitmap, (float)(realBitmapLength - changedBitmap.getWidth())/2,
                 (float)(realBitmapLength - changedBitmap.getHeight())/2, null);
-
         /*Log.v(TAG, "The astroid is at (" + getCoordinates().get_x() + ", " + getCoordinates().get_y() + ")");
         Log.v(TAG, "The astroid pic size is (" + changedBitmap.getWidth() + ", " + changedBitmap.getHeight() + ")");*/
     }
@@ -125,6 +124,15 @@ public class AstroidRock extends Spirit implements ElementStatus{
     public Bitmap getImage() {
         //return this.changedBitmap;
         return realBitmap;
+    }
+
+    public void recycleBitmap(){
+        if(!is_alive()){
+            originBitmap = null;
+            changedBitmap = null;
+            realBitmap = null;
+            System.gc();
+        }
     }
 
     public boolean checkCollison(RectF rect){

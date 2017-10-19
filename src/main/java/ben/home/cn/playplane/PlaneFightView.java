@@ -42,7 +42,13 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
     // Decide to make a Boom class to show the boom status for the corresponding object(eg: Astroid)
     LinkedList<Boom> boomList = new LinkedList<>();
     HashMap<String, Integer> soundPool = new HashMap<>();
+
+    // All the resource should be store in the memory, especial the bitmap need to use again and again
+    private Bitmap backgroundBitmap;
     private Bitmap bulletBitmap;
+    private Bitmap astroidBitmap;
+    private ArrayList<Bitmap> spaceShipBitmaps;
+    private Bitmap boomBitmap;
 
     GameMainThread gameThread;
 
@@ -59,11 +65,21 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         _holder = getHolder();
         _holder.addCallback(this);      // 注册回调函数
         director = SceneControl.START;
+
+        // Load bitmap resource into system
+        backgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bluespace);
+        spaceShipBitmaps = new ArrayList<>();
+        spaceShipBitmaps.add(0, BitmapFactory.decodeResource(getResources(),R.drawable.spaceship));
+        spaceShipBitmaps.add(1, BitmapFactory.decodeResource(getResources(), R.drawable.ship_thrust));
+        astroidBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1);
+        bulletBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.plasmashot);
+        boomBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.explosion);
+        // Game initialize
         gameInit();
     }
 
     private void gameInit() {
-        _background = new BackGround(BitmapFactory.decodeResource(getResources(), R.drawable.bluespace));
+        _background = new BackGround(backgroundBitmap);
         if(!music.isPlaying()) {
             music.start();
         }
@@ -71,12 +87,8 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         /*astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 01
         astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 02
         astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));          // rock 03*/
-        ArrayList<Bitmap> spaceShipBitmaps = new ArrayList<>();
-        spaceShipBitmaps.add(0, BitmapFactory.decodeResource(getResources(),R.drawable.spaceship));
-        spaceShipBitmaps.add(1, BitmapFactory.decodeResource(getResources(), R.drawable.ship_thrust));
         spaceShip = new SpaceShip(spaceShipBitmaps, 20);
         timeTick = 0;
-        bulletBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.plasmashot);
         bulletUpdate();
         rebornNewRock();
         rebornSpaceShip();
@@ -131,8 +143,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
                     tmpBullet.set_alive(false);
                     if(astroidRocks.get(i).checkDestroyStatus(tmpBullet.getAttackValue()) == AstroidRock.TARGETDESTROYED){
                         astroidRocks.get(i).set_alive(false);
-                        boomList.add(new Boom(BitmapFactory.decodeResource(getResources(),
-                                R.drawable.explosion), 4, 4, astroidRocks.get(i).getCoordinates().get_x(),
+                        boomList.add(new Boom(boomBitmap, 4, 4, astroidRocks.get(i).getCoordinates().get_x(),
                                 astroidRocks.get(i).getCoordinates().get_y()));
                         soundEffectPool.play(soundPool.get("explode"), 1.0f, 1.0f, 0, 1, 1.0f);
                     }
@@ -145,6 +156,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
     private void cleanNotAlive() {              // Whether really need to use this method to clear the objects??
         for (int i = astroidRocks.size()-1; i >= 0; i--) {
             if(!astroidRocks.get(i).is_alive()){
+                astroidRocks.get(i).recycleBitmap();
                 astroidRocks.remove(i);
             }
         }
@@ -152,6 +164,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         while(bulletIter.hasNext()){
             Bullet tmpBulletStatus = bulletIter.next();
             if(!tmpBulletStatus.is_alive()){
+                tmpBulletStatus.recycleBitmap();
                 bulletIter.remove();
             }
         }
@@ -159,11 +172,12 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         while(boomIter.hasNext()){
             Boom tmpBoom = boomIter.next();
             if(!tmpBoom.is_alive()){
+                tmpBoom.destroyAnimate();
                 boomIter.remove();
             }
         }
         if(!spaceShip.is_alive()){
-
+            spaceShip.destroyAnimate();
         }
     }
 
@@ -173,7 +187,7 @@ public class PlaneFightView extends SurfaceView implements SurfaceHolder.Callbac
         while(astroidRocks.size() < 3){
 //            astroidRocks.add(new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1)));
 //            图片太大，空间不大，要修改图片大小才能使用检测
-            tmpAstroidRock = new AstroidRock(BitmapFactory.decodeResource(getResources(), R.drawable.asteroid1));
+            tmpAstroidRock = new AstroidRock(astroidBitmap);
             if(astroidRocks.size() == 0){
                 astroidRocks.add(tmpAstroidRock);
                 continue;

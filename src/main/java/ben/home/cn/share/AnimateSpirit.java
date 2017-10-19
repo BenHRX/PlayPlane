@@ -95,6 +95,14 @@ public class AnimateSpirit extends Spirit {
         }
     }
 
+    public void destroyAnimate(){
+        if(!is_alive()) {
+            _animateList.clear();
+            _animateBitmap = null;
+            System.gc();
+        }
+        super.recycleBitmap();
+    }
 
     public int getFrameTime() {
         return frameTime;
